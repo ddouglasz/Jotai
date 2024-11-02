@@ -1,28 +1,51 @@
 import React from "react";
 import { useAtom } from "jotai";
-import { taskListAtom, resetTasksAtom } from "../atoms";
-import TaskItem from "./TaskItem";
+import { taskListAtom, resetTasksAtom, type Task } from "../atoms";
 
-function TaskList() {
-  const [tasks] = useAtom(taskListAtom);
+const TaskList = () => {
   const [, resetTasks] = useAtom(resetTasksAtom);
+  const [taskList, setTaskList] = useAtom(taskListAtom);
+
+  const toggleCompletion = (id: number) => {
+    setTaskList((prevTasks: Task[]) =>
+      prevTasks.map((prevTask) =>
+        prevTask.id === id ? { ...prevTask, completed: !prevTask.completed } : prevTask
+      )
+    );
+  };
+  
+  const addTask = () => {
+    setTaskList((oldTasks) => [
+      ...oldTasks,
+      {
+        id: oldTasks.length + 1,
+        description: `New Task ${oldTasks.length + 1}`,
+        completed: false,
+      },
+    ]);
+  };
 
   return (
     <div>
       <h2>Tasks</h2>
+      <button onClick={addTask}>Add Task</button>
       <button onClick={resetTasks}>Reset All Tasks</button>
       <ul>
-        {tasks.map((task) => (
-          <TaskItem
-            key={task.id}
-            id={task.id}
-            description={task.description}
-            completed={task.completed}
-          />
-        ))}
+        {taskList.map((task) => {
+          return (
+            <li key={task.id}>
+              <input
+                type="checkbox"
+                checked={task.completed}
+                onChange={() => toggleCompletion(task.id)}
+              />
+              {task.description}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
-}
+};
 
 export default TaskList;
