@@ -1,21 +1,11 @@
-import React from 'react';
-import { useAtom } from 'jotai';
-import { taskListAtom, taskAtomFamily, resetTasksAtom } from '../atoms';
+import React from "react";
+import { useAtom } from "jotai";
+import { taskListAtom, resetTasksAtom } from "../atoms";
+import TaskItem from "./TaskItem";
 
 function TaskList() {
-    const [tasks] = useAtom(taskListAtom);
-    const [, resetTasks] = useAtom(resetTasksAtom);
-    
-    // @ts-ignore
-    const useToggleTaskCompletion = (id) => {
-      const [, updateTask] = useAtom(taskAtomFamily(id));
-      return () => {
-        // @ts-ignore
-        updateTask((task) => ({ ...task, completed: !task.completed }));
-      };
-    };
-
-    const toggleTaskCompletion = useToggleTaskCompletion;
+  const [tasks] = useAtom(taskListAtom);
+  const [, resetTasks] = useAtom(resetTasksAtom);
 
   return (
     <div>
@@ -23,19 +13,12 @@ function TaskList() {
       <button onClick={resetTasks}>Reset All Tasks</button>
       <ul>
         {tasks.map((task) => (
-            // @ts-ignore
-          <li key={task.id}>
-            
-            <input
-              type="checkbox"
-              // @ts-ignore
-              checked={task.completed}
-              // @ts-ignore
-              onChange={() => toggleTaskCompletion(task.id)}
-            />
-            {/* @ts-ignore */}
-            {task.description}
-          </li>
+          <TaskItem
+            key={task.id}
+            id={task.id}
+            description={task.description}
+            completed={task.completed}
+          />
         ))}
       </ul>
     </div>

@@ -1,40 +1,49 @@
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 
-// Basic Atoms
-export const userIdAtom = atom(1); // Current user ID
-type Task = {
+export type Task = {
   id: number;
   description: string;
   completed: boolean;
 };
 
-export const taskListAtom = atomWithStorage<Task[]>("taskList", []); // Task list with local storage persistence
-
-// Atom Family for individual tasks
-export const taskAtomFamily = (id: number) =>
-  atom(
-    (get) => get(taskListAtom).find((task) => task.id === id),
-    (get, set, update) => {
-      const tasks = get(taskListAtom);
-      set(
-        taskListAtom,
-        tasks.map((task) => (task.id === id ? { ...task, ...(typeof update === 'object' ? update : {}) } : task))
-      );
-    }
-  );
-
-// Derived Atom for filtered tasks
-export const completedTasksAtom = atom((get) =>
-  // @ts-ignore
-  get(taskListAtom).filter((task) => task.completed)
-);
-
 type TUserDetails = {
   name: string;
   email: string;
 };
+
 type TMockData = Record<number, TUserDetails>;
+
+// Basic Atoms
+export const userIdAtom = atom(1); // Current user ID
+export const taskListAtom = atomWithStorage<Task[]>("taskList", []); // Task list with local storage persistence
+
+const taskAtoms = new Map();
+
+// Atom Family for tasks
+export const taskAtomFamily = (id: number) => {
+  if (!taskAtoms.has(id)) {
+    // Create and cache an atom for the task if it doesn't exist yet
+    const taskAtom = atom(
+      (get) => get(taskListAtom).find((task) => task.id === id),
+      (get, set, update) => {
+        // Update taskListAtom by mapping over tasks to find the modified one
+        set(taskListAtom, (prevTasks) =>
+          prevTasks.map((task) => (task.id === id ? { ...task, ...(typeof update === 'object' ? update : {}) } : task))
+        );
+      }
+    );
+    taskAtoms.set(id, taskAtom);
+  }
+  return taskAtoms.get(id);
+};
+
+
+// Derived Atom for filtered tasks
+export const completedTasksAtom = atom((get) =>
+  get(taskListAtom).filter((task) => task.completed)
+);
+
 
 // Async Atom for user profile (Mock data)
 export const userProfileAtom = atom(async (get) => {
@@ -49,7 +58,6 @@ export const userProfileAtom = atom(async (get) => {
 // Task count derived atom
 export const taskStatsAtom = atom((get) => {
   const tasks = get(taskListAtom);
-  // @ts-ignore
   const completed = tasks.filter((task) => task.completed).length;
   const pending = tasks.length - completed;
   return { completed, pending };
