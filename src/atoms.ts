@@ -44,15 +44,20 @@ export const completedTasksAtom = atom((get) =>
   get(taskListAtom).filter((task) => task.completed)
 );
 
-
-// Async Atom for user profile (Mock data)
+// Async atom to fetch user profile based on userId
 export const userProfileAtom = atom(async (get) => {
-  const userId = get(userIdAtom);
+  const userId = get(userIdAtom); // Ensure it reacts to userId changes
   const mockData: TMockData = {
     1: { name: "Alice", email: "alice@example.com" },
     2: { name: "Bob", email: "bob@example.com" },
   };
-  return mockData[userId] || {};
+  
+  // Simulate async loading
+  await new Promise((resolve) => setTimeout(resolve, 500)); // Delay to simulate async fetching
+  const user = mockData[userId];
+  if (!user) throw new Error("User not found");
+
+  return user;
 });
 
 // Task count derived atom

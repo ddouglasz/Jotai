@@ -1,6 +1,6 @@
 import React from "react";
 import { useAtom } from "jotai";
-import { taskListAtom, resetTasksAtom, type Task } from "../atoms";
+import { type Task, taskListAtom, resetTasksAtom  } from "../atoms";
 
 const TaskList = () => {
   const [, resetTasks] = useAtom(resetTasksAtom);
@@ -30,7 +30,7 @@ const TaskList = () => {
       <h2>Tasks</h2>
       <button onClick={addTask}>Add Task</button>
       <button onClick={resetTasks}>Reset All Tasks</button>
-      <ul>
+      <ul style={{listStyle: "none"}}>
         {taskList.map((task) => {
           return (
             <li key={task.id}>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import "./App.css";
 import { Provider } from "jotai";
 import TaskList from "./components/TaskList";
@@ -10,7 +10,9 @@ function App() {
     <Provider>
       <div className="App">
         <h1>Todo App with Jotai</h1>
-        {/* <UserProfile /> */}
+        <Suspense fallback={<div>Loading user profile...</div>}>
+        <UserProfile />
+      </Suspense>
         <TaskStats />
         <TaskList />
       </div>
