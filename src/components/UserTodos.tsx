@@ -1,10 +1,29 @@
-import React, {KeyboardEvent, useState } from "react";
+import React, { useState } from "react";
+import styled from "@emotion/styled";
 import { useAtom } from "jotai";
-import { userTodosAtom, todoStatsAtom, resetTodosAtom } from "../atoms/atoms";
+import { PlusBoldIcon } from "@commercetools-uikit/icons";
+import PrimaryButton from "@commercetools-uikit/primary-button";
+import Spacings from "@commercetools-uikit/spacings";
+import TextInput from "@commercetools-uikit/text-input";
+import { userTodosAtom, resetTodosAtom } from "../atoms/atoms";
+
+const UserTodosContainer = styled.div`
+  top: 25%;
+  background-color: #ffffff;
+  position: absolute;
+  left: 40%;
+`;
+
+const StyledListContainer = styled.ul`
+  list-style: none;
+  cursor: pointer;
+  padding: 0;
+  height: 400px;
+  // overflow-y: scroll;
+`;
 
 const UserTodos = () => {
   const [todos, setTodos] = useAtom(userTodosAtom);
-  const [stats] = useAtom(todoStatsAtom);
   const [, resetTodos] = useAtom(resetTodosAtom);
   const [newTodo, setNewTodo] = useState("");
 
@@ -23,34 +42,40 @@ const UserTodos = () => {
     );
   };
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      addTodo();
-    }
-  };
-
-
   return (
-    <div>
-      <div>
-        <p>Total: {stats.total}</p>
-        <p>Completed: {stats.completed}</p>
-        <p>Remaining: {stats.remaining}</p>
-      </div>
-      <input
-        type="text"
-        value={newTodo}
-        onChange={(e) => setNewTodo(e.target.value)}
-        onKeyDown={handleKeyDown} 
-        placeholder="Add new to-do"
-      />
-      <button onClick={addTodo}>Add To-Do</button>
-      <button onClick={resetTodos}>Reset Todos</button>
-      <ul style={{ listStyle: "none", cursor: "pointer" }}>
+    <UserTodosContainer>
+      <Spacings.Inline scale="m">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            addTodo();
+          }}
+        >
+          <TextInput
+            value={newTodo}
+            onChange={(e) => setNewTodo(e.target.value)}
+            placeholder="Add new to-do"
+          />
+        </form>
+        <PrimaryButton
+          iconLeft={<PlusBoldIcon />}
+          label="Add todo"
+          onClick={addTodo}
+        />
+        <PrimaryButton
+          tone="critical"
+          onClick={resetTodos}
+          label="Clear todos"
+        />
+      </Spacings.Inline>
+      <StyledListContainer style={{}}>
         {todos.map((todo, index) => (
           <li
             key={index}
-            style={{ textDecoration: todo.completed ? "line-through" : "none" }}
+            style={{
+              textDecoration: todo.completed ? "line-through" : "none",
+              padding: "5px 0",
+            }}
           >
             <input
               type="checkbox"
@@ -60,8 +85,8 @@ const UserTodos = () => {
             <span onClick={() => toggleTodo(index)}>{todo.text}</span>
           </li>
         ))}
-      </ul>
-    </div>
+      </StyledListContainer>
+    </UserTodosContainer>
   );
 };
 

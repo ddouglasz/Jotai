@@ -2,7 +2,7 @@ import {ReactNode} from "react";
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 
-export type Task = {
+export type TODO = {
   text: ReactNode;
   id: number;
   description: string;
@@ -18,32 +18,6 @@ type TMockData = Record<number, TUserDetails>;
 
 // Basic Atoms
 export const userIdAtom = atomWithStorage('selectedUserId', 1); // Current user ID
-export const taskListAtom = atomWithStorage<Task[]>("taskList", []); // Task list with local storage persistence
-
-const taskAtoms = new Map();
-
-// Atom Family for tasks
-export const taskAtomFamily = (id: number) => {
-  if (!taskAtoms.has(id)) {
-    // Create and cache an atom for the task if it doesn't exist yet
-    const taskAtom = atom(
-      (get) => get(taskListAtom).find((task) => task.id === id),
-      (get, set, update) => {
-        // Update taskListAtom by mapping over tasks to find the modified one
-        set(taskListAtom, (prevTasks) =>
-          prevTasks.map((task) => (task.id === id ? { ...task, ...(typeof update === 'object' ? update : {}) } : task))
-        );
-      }
-    );
-    taskAtoms.set(id, taskAtom);
-  }
-  return taskAtoms.get(id);
-};
-
-// Derived Atom for filtered tasks
-export const completedTasksAtom = atom((get) =>
-  get(taskListAtom).filter((task) => task.completed)
-);
 
 // Mock user data
 const mockUserData: TMockData = {
@@ -58,7 +32,7 @@ export const userProfileAtom = atom(async (get) => {
 });
 
 // Todos storage
-const allTodosAtom = atomWithStorage<Record<number, Task[]>>('allTodos', { 1: [], 2: [] });
+const allTodosAtom = atomWithStorage<Record<number, TODO[]>>('allTodos', { 1: [], 2: [] });
 
 // User-specific todos atom
 export const userTodosAtom = atom(
@@ -72,7 +46,7 @@ export const userTodosAtom = atom(
     const allTodos = get(allTodosAtom);
     const userTodos = allTodos[userId] || [];
     const updatedTodos = typeof update === "function" ? update(userTodos) : update;
-
+    
     set(allTodosAtom, {
       ...allTodos,
       [userId]: updatedTodos,
@@ -84,7 +58,7 @@ export const resetTodosAtom = atom(null, (get, set) => {
   set(userTodosAtom, []);
 });
 
-// User-specific todo stats
+// User-specific todo stats - derived atom / (atom family?)
 export const todoStatsAtom = atom((get) => {
   const todos = get(userTodosAtom);
   const completed = todos.filter((todo) => todo.completed).length;
@@ -93,5 +67,31 @@ export const todoStatsAtom = atom((get) => {
   return { total, completed, remaining };
 });
 
+// const taskAtoms = new Map();
+// export const taskListAtom = atomWithStorage<TODO[]>("taskList", []); // TODO list with local storage persistence
+
+// Atom Family for tasks
+// export const taskAtomFamily = (id: number) => {
+//   if (!taskAtoms.has(id)) {
+//     // Create and cache an atom for the task if it doesn't exist yet
+//     const taskAtom = atom(
+//       (get) => get(taskListAtom).find((task) => task.id === id),
+//       (get, set, update) => {
+//         // Update taskListAtom by mapping over tasks to find the modified one
+//         set(taskListAtom, (prevTasks) =>
+//           prevTasks.map((task) => (task.id === id ? { ...task, ...(typeof update === 'object' ? update : {}) } : task))
+//         );
+//       }
+//     );
+//     taskAtoms.set(id, taskAtom);
+//   }
+//   return taskAtoms.get(id);
+// };
+
+// Derived Atom for filtered tasks
+// export const completedTasksAtom = atom((get) =>
+//   get(taskListAtom).filter((task) => task.completed)
+// );
+
 // Reset atom to clear tasks
-export const resetTasksAtom = atom(null, (get, set) => set(taskListAtom, []));
+// export const resetTasksAtom = atom(null, (get, set) => set(taskListAtom, []));
