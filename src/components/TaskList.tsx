@@ -1,6 +1,7 @@
 import React from "react";
 import { useAtom } from "jotai";
 import { type Task, taskListAtom, resetTasksAtom  } from "../atoms";
+import TaskStats from "./TaskStats";
 
 const TaskList = () => {
   const [, resetTasks] = useAtom(resetTasksAtom);
@@ -19,6 +20,7 @@ const TaskList = () => {
       ...oldTasks,
       {
         id: oldTasks.length + 1,
+        text: `New Task ${oldTasks.length + 1}`,
         description: `New Task ${oldTasks.length + 1}`,
         completed: false,
       },
@@ -28,6 +30,7 @@ const TaskList = () => {
   return (
     <div>
       <h2>Tasks</h2>
+      <TaskStats />
       <button onClick={addTask}>Add Task</button>
       <button onClick={resetTasks}>Reset All Tasks</button>
       <ul style={{listStyle: "none"}}>

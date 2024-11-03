@@ -1,7 +1,9 @@
+import {ReactNode} from "react";
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 
 export type Task = {
+  text: ReactNode;
   id: number;
   description: string;
   completed: boolean;
@@ -38,26 +40,58 @@ export const taskAtomFamily = (id: number) => {
   return taskAtoms.get(id);
 };
 
-
 // Derived Atom for filtered tasks
 export const completedTasksAtom = atom((get) =>
   get(taskListAtom).filter((task) => task.completed)
 );
 
-// Async atom to fetch user profile based on userId
-export const userProfileAtom = atom(async (get) => {
-  const userId = get(userIdAtom); // Ensure it reacts to userId changes
-  const mockData: TMockData = {
-    1: { name: "Alice", email: "alice@example.com" },
-    2: { name: "Bob", email: "bob@example.com" },
-  };
-  
-  // Simulate async loading
-  await new Promise((resolve) => setTimeout(resolve, 500)); // Delay to simulate async fetching
-  const user = mockData[userId];
-  if (!user) throw new Error("User not found");
+// Mock user data
+const mockUserData: TMockData = {
+  1: { name: "Alice", email: "alice@example.com" },
+  2: { name: "Bob", email: "bob@example.com" },
+};
 
-  return user;
+// User profile atom
+export const userProfileAtom = atom(async (get) => {
+  const userId = get(userIdAtom);
+  return mockUserData[userId];
+});
+
+// Todos storage
+// const allTodosAtom = atom<Record<number, Task[]>>({ 1: [], 2: [] });
+const allTodosAtom = atomWithStorage<Record<number, Task[]>>('allTodos', { 1: [], 2: [] });
+
+// User-specific todos atom
+export const userTodosAtom = atom(
+  (get) => {
+    const userId = get(userIdAtom);
+    const allTodos = get(allTodosAtom);
+    return allTodos[userId] || [];
+  },
+  (get, set, update) => {
+    const userId = get(userIdAtom);
+    const allTodos = get(allTodosAtom);
+    const userTodos = allTodos[userId] || [];
+    const updatedTodos = typeof update === "function" ? update(userTodos) : update;
+
+    set(allTodosAtom, {
+      ...allTodos,
+      [userId]: updatedTodos,
+    });
+  }
+);
+
+export const resetTodosAtom = atom(null, (get, set) => {
+  set(userTodosAtom, []);
+});
+
+// User-specific todo stats
+export const todoStatsAtom = atom((get) => {
+  const todos = get(userTodosAtom);
+  const completed = todos.filter((todo) => todo.completed).length;
+  const total = todos.length;
+  const remaining = total - completed;
+  return { total, completed, remaining };
 });
 
 // Task count derived atom
