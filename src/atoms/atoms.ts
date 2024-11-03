@@ -17,7 +17,7 @@ type TUserDetails = {
 type TMockData = Record<number, TUserDetails>;
 
 // Basic Atoms
-export const userIdAtom = atom(1); // Current user ID
+export const userIdAtom = atomWithStorage('selectedUserId', 1); // Current user ID
 export const taskListAtom = atomWithStorage<Task[]>("taskList", []); // Task list with local storage persistence
 
 const taskAtoms = new Map();
@@ -47,8 +47,8 @@ export const completedTasksAtom = atom((get) =>
 
 // Mock user data
 const mockUserData: TMockData = {
-  1: { name: "Alice", email: "alice@example.com" },
-  2: { name: "Bob", email: "bob@example.com" },
+  1: { name: "joe", email: "joe@example.com" },
+  2: { name: "kate", email: "kate@example.com" },
 };
 
 // User profile atom
@@ -58,7 +58,6 @@ export const userProfileAtom = atom(async (get) => {
 });
 
 // Todos storage
-// const allTodosAtom = atom<Record<number, Task[]>>({ 1: [], 2: [] });
 const allTodosAtom = atomWithStorage<Record<number, Task[]>>('allTodos', { 1: [], 2: [] });
 
 // User-specific todos atom
@@ -92,14 +91,6 @@ export const todoStatsAtom = atom((get) => {
   const total = todos.length;
   const remaining = total - completed;
   return { total, completed, remaining };
-});
-
-// Task count derived atom
-export const taskStatsAtom = atom((get) => {
-  const tasks = get(taskListAtom);
-  const completed = tasks.filter((task) => task.completed).length;
-  const pending = tasks.length - completed;
-  return { completed, pending };
 });
 
 // Reset atom to clear tasks

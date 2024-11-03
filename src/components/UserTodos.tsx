@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, {KeyboardEvent, useState } from "react";
 import { useAtom } from "jotai";
-import { userTodosAtom, todoStatsAtom, resetTodosAtom } from "../atoms";
+import { userTodosAtom, todoStatsAtom, resetTodosAtom } from "../atoms/atoms";
 
 const UserTodos = () => {
   const [todos, setTodos] = useAtom(userTodosAtom);
@@ -23,9 +23,15 @@ const UserTodos = () => {
     );
   };
 
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      addTodo();
+    }
+  };
+
+
   return (
     <div>
-      <h3>User's To-Do List</h3>
       <div>
         <p>Total: {stats.total}</p>
         <p>Completed: {stats.completed}</p>
@@ -35,11 +41,12 @@ const UserTodos = () => {
         type="text"
         value={newTodo}
         onChange={(e) => setNewTodo(e.target.value)}
+        onKeyDown={handleKeyDown} 
         placeholder="Add new to-do"
       />
       <button onClick={addTodo}>Add To-Do</button>
       <button onClick={resetTodos}>Reset Todos</button>
-      <ul style={{ listStyle: "none" }}>
+      <ul style={{ listStyle: "none", cursor: "pointer" }}>
         {todos.map((todo, index) => (
           <li
             key={index}

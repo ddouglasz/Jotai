@@ -1,6 +1,6 @@
 import React, { startTransition } from "react";
 import { useAtom } from "jotai";
-import { userProfileAtom, userIdAtom } from "../atoms";
+import { userProfileAtom, userIdAtom } from "../atoms/atoms";
 
 const UserProfile = () => {
   const [user] = useAtom(userProfileAtom);
@@ -15,7 +15,7 @@ const UserProfile = () => {
   };
   return (
     <div>
-      <h2>User Profile</h2>
+      <h3>{user.name}'s To-Do List</h3>
       <p>Name: {user.name}</p>
       <p>Email: {user.email}</p>
       <button onClick={switchUser}>Switch User</button>
