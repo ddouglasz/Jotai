@@ -16,7 +16,6 @@ const UserTodosContainer = styled.div`
 
 const StyledListContainer = styled.ul`
   list-style: none;
-  cursor: pointer;
   padding: 0;
   height: 400px;
   // overflow-y: scroll;
@@ -68,16 +67,18 @@ const UserTodos = () => {
           label="Clear todos"
         />
       </Spacings.Inline>
-      <StyledListContainer style={{}}>
+      <StyledListContainer>
         {todos.map((todo, index) => (
           <li
             key={index}
             style={{
               textDecoration: todo.completed ? "line-through" : "none",
               padding: "5px 0",
+              cursor: "pointer",
             }}
           >
             <input
+              style={{ marginRight: "10px" }}
               type="checkbox"
               checked={todo.completed}
               onChange={() => toggleTodo(index)}
