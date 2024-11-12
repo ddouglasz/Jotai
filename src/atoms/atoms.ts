@@ -2,11 +2,12 @@ import {ReactNode} from "react";
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 
-export type TODO = {
+export type TTodo = {
   text: ReactNode;
   id: number;
   description: string;
   completed: boolean;
+  dueDate?: string;
 };
 
 type TUserDetails = {
@@ -16,11 +17,16 @@ type TUserDetails = {
 
 type TMockData = Record<number, TUserDetails>;
 
+// Define the atom
+export const newTodoAtom = atom("");
+
+export const dateAtom = atom("");
+
 // Basic Atoms
-export const userIdAtom = atomWithStorage('selectedUserId', 1); // Current user ID
+export const userIdAtom = atomWithStorage('selectedUserId', 1); 
 
 // Mock user data
-const mockUserData: TMockData = {
+const userData: TMockData = {
   1: { name: "joe", email: "joe@example.com" },
   2: { name: "kate", email: "kate@example.com" },
 };
@@ -28,11 +34,11 @@ const mockUserData: TMockData = {
 // User profile atom
 export const userProfileAtom = atom(async (get) => {
   const userId = get(userIdAtom);
-  return mockUserData[userId];
+  return userData[userId];
 });
 
 // Todos storage
-const allTodosAtom = atomWithStorage<Record<number, TODO[]>>('allTodos', { 1: [], 2: [] });
+const allTodosAtom = atomWithStorage<Record<number, TTodo[]>>('allTodos', { 1: [], 2: [] });
 
 // User-specific todos atom
 export const userTodosAtom = atom(
@@ -58,7 +64,7 @@ export const resetTodosAtom = atom(null, (get, set) => {
   set(userTodosAtom, []);
 });
 
-// User-specific todo stats - derived atom / (atom family?)
+// User-specific todo stats - derived atom
 export const todoStatsAtom = atom((get) => {
   const todos = get(userTodosAtom);
   const completed = todos.filter((todo) => todo.completed).length;
@@ -67,31 +73,13 @@ export const todoStatsAtom = atom((get) => {
   return { total, completed, remaining };
 });
 
-// const taskAtoms = new Map();
-// export const taskListAtom = atomWithStorage<TODO[]>("taskList", []); // TODO list with local storage persistence
 
-// Atom Family for tasks
-// export const taskAtomFamily = (id: number) => {
-//   if (!taskAtoms.has(id)) {
-//     // Create and cache an atom for the task if it doesn't exist yet
-//     const taskAtom = atom(
-//       (get) => get(taskListAtom).find((task) => task.id === id),
-//       (get, set, update) => {
-//         // Update taskListAtom by mapping over tasks to find the modified one
-//         set(taskListAtom, (prevTasks) =>
-//           prevTasks.map((task) => (task.id === id ? { ...task, ...(typeof update === 'object' ? update : {}) } : task))
-//         );
-//       }
-//     );
-//     taskAtoms.set(id, taskAtom);
-//   }
-//   return taskAtoms.get(id);
-// };
+// Fetch todos for the selected user from the API
+export const todosAtom = atom(async (get) => {
+  const userId = get(userIdAtom);
 
-// Derived Atom for filtered tasks
-// export const completedTasksAtom = atom((get) =>
-//   get(taskListAtom).filter((task) => task.completed)
-// );
-
-// Reset atom to clear tasks
-// export const resetTasksAtom = atom(null, (get, set) => set(taskListAtom, []));
+  // Fetch todos for the selected user from the API
+  const response = await fetch(`https://someapi.com/todos?userId=${userId}`);
+  const data = await response.json();
+  return data || [];
+});
