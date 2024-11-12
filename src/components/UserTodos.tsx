@@ -1,11 +1,17 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "@emotion/styled";
 import { useAtom } from "jotai";
 import { PlusBoldIcon } from "@commercetools-uikit/icons";
 import PrimaryButton from "@commercetools-uikit/primary-button";
 import Spacings from "@commercetools-uikit/spacings";
 import TextInput from "@commercetools-uikit/text-input";
-import { userTodosAtom, resetTodosAtom } from "../atoms/atoms";
+import DateInput from "@commercetools-uikit/date-input";
+import {
+  userTodosAtom,
+  resetTodosAtom,
+  newTodoAtom,
+  dateAtom,
+} from "../atoms/atoms";
 
 const UserTodosContainer = styled.div`
   top: 25%;
@@ -18,18 +24,34 @@ const StyledListContainer = styled.ul`
   list-style: none;
   padding: 0;
   height: 400px;
-  // overflow-y: scroll;
 `;
+
+type TCustomEvent = {
+  target: {
+    id?: string;
+    name?: string;
+    value?: string;
+  };
+};
 
 const UserTodos = () => {
   const [todos, setTodos] = useAtom(userTodosAtom);
   const [, resetTodos] = useAtom(resetTodosAtom);
-  const [newTodo, setNewTodo] = useState("");
+  const [newTodo, setNewTodo] = useAtom(newTodoAtom);
+  const [dueDate, setDueDate] = useAtom(dateAtom);
 
   const addTodo = () => {
     if (newTodo.trim()) {
-      setTodos([...todos, { text: newTodo, completed: false }]);
+      const newTodoItem = {
+        text: newTodo,
+        id: Date.now(),
+        description: "",
+        completed: false,
+        dueDate,
+      };
+      setTodos([...todos, newTodoItem]);
       setNewTodo("");
+      setDueDate("");
     }
   };
 
@@ -43,36 +65,46 @@ const UserTodos = () => {
 
   return (
     <UserTodosContainer>
-      <Spacings.Inline scale="m">
+      <Spacings.Stack scale="l">
         <form
           onSubmit={(e) => {
             e.preventDefault();
             addTodo();
           }}
         >
-          <TextInput
-            value={newTodo}
-            onChange={(e) => setNewTodo(e.target.value)}
-            placeholder="Add new to-do"
-          />
+          <Spacings.Inline scale="m">
+            <TextInput
+              value={newTodo}
+              onChange={(e) => setNewTodo(e.target.value)}
+              placeholder="Add new to-do"
+            />
+            <DateInput
+              value={dueDate}
+              onChange={(e: TCustomEvent) =>
+                setDueDate(e.target.value as string)
+              }
+              placeholder="Due date"
+            />
+          </Spacings.Inline>
         </form>
-        <PrimaryButton
-          iconLeft={<PlusBoldIcon />}
-          label="Add todo"
-          onClick={addTodo}
-        />
-        <PrimaryButton
-          tone="critical"
-          onClick={resetTodos}
-          label="Clear todos"
-        />
-      </Spacings.Inline>
+        <Spacings.Inline scale="m">
+          <PrimaryButton
+            iconLeft={<PlusBoldIcon />}
+            label="Add todo"
+            onClick={addTodo}
+          />
+          <PrimaryButton
+            tone="critical"
+            onClick={resetTodos}
+            label="Clear todos"
+          />
+        </Spacings.Inline>
+      </Spacings.Stack>
       <StyledListContainer>
         {todos.map((todo, index) => (
           <li
-            key={index}
+            key={todo.id}
             style={{
-              textDecoration: todo.completed ? "line-through" : "none",
               padding: "5px 0",
               cursor: "pointer",
             }}
@@ -83,7 +115,21 @@ const UserTodos = () => {
               checked={todo.completed}
               onChange={() => toggleTodo(index)}
             />
-            <span onClick={() => toggleTodo(index)}>{todo.text}</span>
+            <span
+              onClick={() => toggleTodo(index)}
+              style={{
+                textDecoration: todo.completed ? "line-through" : "none",
+              }}
+            >
+              {todo.text}
+            </span>
+            {todo.dueDate && (
+              <span
+                style={{ marginLeft: "5px", fontSize: "0.7em", color: "gray" }}
+              >
+                (Due: {todo.dueDate})
+              </span>
+            )}
           </li>
         ))}
       </StyledListContainer>

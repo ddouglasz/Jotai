@@ -1,7 +1,7 @@
 import React, { Suspense } from "react";
+import { IntlProvider } from 'react-intl';
 import styled from '@emotion/styled';
 import "./App.css";
-import { Provider } from "jotai";
 import UserProfile from "./components/UserProfile";
 import UserTodos from "./components/UserTodos";
 
@@ -14,7 +14,7 @@ const Header = styled.h1`
 
 function App() {
   return (
-    <Provider>
+    <IntlProvider locale='' >
       <div className="App">
         <Header >
           Todos App with Jotai 👻
@@ -24,7 +24,7 @@ function App() {
         </Suspense>
         <UserTodos />
       </div>
-    </Provider>
+      </IntlProvider>
   );
 }
 
