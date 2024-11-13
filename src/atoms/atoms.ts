@@ -20,15 +20,15 @@ type TMockData = Record<number, TUserDetails>;
 // Define the atom
 export const newTodoAtom = atom("");
 
+// Basic Atoms
 export const dateAtom = atom("");
 
-// Basic Atoms
 export const userIdAtom = atomWithStorage('selectedUserId', 1); 
 
 // Mock user data
 const userData: TMockData = {
-  1: { name: "joe", email: "joe@example.com" },
-  2: { name: "kate", email: "kate@example.com" },
+  1: { name: "Carlos", email: "carlos@example.com" },
+  2: { name: "Douglas", email: "douglas@example.com" },
 };
 
 // User profile atom
