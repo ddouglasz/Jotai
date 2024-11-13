@@ -28,7 +28,7 @@ const UserProfile = () => {
   return (
     <UserProfileContainer>
       <Card insetScale="xl">
-        <h3>{user.name}' To-Do List</h3>
+        <h3>{user.name}'s To-Do List</h3>
         <p>Name: {user.name}</p>
         <p>Email: {user.email}</p>
         <div>
