@@ -5,6 +5,7 @@ import { UsersIcon } from "@commercetools-uikit/icons";
 import styled from "@emotion/styled";
 import { useAtom } from "jotai";
 import { userProfileAtom, userIdAtom, todoStatsAtom } from "../atoms/atoms";
+import { Tag } from "@commercetools-uikit/tag";
 
 const UserProfileContainer = styled.div`
   position: absolute;
@@ -32,9 +33,21 @@ const UserProfile = () => {
         <p>Name: {user.name}</p>
         <p>Email: {user.email}</p>
         <div>
-          <p>Total: {stats.total}</p>
-          <p>Completed: {stats.completed}</p>
-          <p>Pending: {stats.remaining}</p>
+          <p>
+            <Tag tone="surface" isDisabled={false}>
+              Total: {stats.total}
+            </Tag>
+          </p>
+          <p>
+            <Tag tone="primary" isDisabled={false}>
+              Completed: {stats.completed}
+            </Tag>
+          </p>
+          <p>
+            <Tag tone="warning" isDisabled={false}>
+              Pending: {stats.remaining}
+            </Tag>
+          </p>
         </div>
         <PrimaryButton
           iconLeft={<UsersIcon />}
